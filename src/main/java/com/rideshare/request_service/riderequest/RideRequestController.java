@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/ride-request")
@@ -17,7 +18,7 @@ public class RideRequestController {
 
     private final SqsClient sqsClient;
 
-    @Value("${aws.sqs.queue-url}")
+    @Value("${aws.sqs.ride-request-queue-url}")
     private String queueUrl;
 
     public RideRequestController(SqsClient sqsClient) {
@@ -26,15 +27,18 @@ public class RideRequestController {
 
     @GetMapping("/test")
     public String getMethodName() {
-        // Santa Monica, 
-        // lat: 34.019455, lon: -118.491191
         RideRequest rideRequest = new RideRequest("34.019455", "-118.491191");
         logger.info("Sending RideRequest: " + rideRequest);
 
+        ObjectMapper objectMapper = new ObjectMapper(); // For JSON serialization
+
         try {
+            // Serialize the RideRequest object to JSON
+            String messageBody = objectMapper.writeValueAsString(rideRequest);
+
             SendMessageRequest sendMessageRequest = SendMessageRequest.builder()
                 .queueUrl(queueUrl)
-                .messageBody(rideRequest.toString())
+                .messageBody(messageBody)
                 .build();
             sqsClient.sendMessage(sendMessageRequest);
             logger.info("RideRequest sent to SQS queue successfully.");
