@@ -27,7 +27,7 @@ public class RideRequestController {
 
     @GetMapping("/test")
     public String getMethodName() {
-        RideRequest rideRequest = new RideRequest("34.019455", "-118.491191");
+        RideRequest rideRequest = new RideRequest("-118.491191", "34.019455");
         logger.info("Sending RideRequest: " + rideRequest);
 
         ObjectMapper objectMapper = new ObjectMapper(); // For JSON serialization
