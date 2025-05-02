@@ -17,12 +17,14 @@ public class RideRequestController {
     private static final Logger logger = LoggerFactory.getLogger(RideRequestController.class);
 
     private final SqsClient sqsClient;
+    private final TripServiceClient tripServiceClient;
 
     @Value("${aws.sqs.ride-request-queue-url}")
     private String queueUrl;
 
-    public RideRequestController(SqsClient sqsClient) {
+    public RideRequestController(SqsClient sqsClient, TripServiceClient tripServiceClient) {
         this.sqsClient = sqsClient;
+        this.tripServiceClient = tripServiceClient;
     }
 
     @GetMapping("/test")
@@ -30,10 +32,13 @@ public class RideRequestController {
         RideRequest rideRequest = new RideRequest("-118.491191", "34.019455");
         logger.info("Sending RideRequest: " + rideRequest);
 
-        ObjectMapper objectMapper = new ObjectMapper(); // For JSON serialization
-
         try {
+            // Call the Trip Service's request-trip route
+            String tripServiceResponse = tripServiceClient.requestTrip();
+            logger.info("Trip Service response: " + tripServiceResponse);
+
             // Serialize the RideRequest object to JSON
+            ObjectMapper objectMapper = new ObjectMapper();
             String messageBody = objectMapper.writeValueAsString(rideRequest);
 
             SendMessageRequest sendMessageRequest = SendMessageRequest.builder()
@@ -43,10 +48,9 @@ public class RideRequestController {
             sqsClient.sendMessage(sendMessageRequest);
             logger.info("RideRequest sent to SQS queue successfully.");
         } catch (Exception e) {
-            logger.error("Failed to send RideRequest to SQS queue", e);
+            logger.error("Failed to process RideRequest", e);
         }
 
         return "Hello World";
     }
-    
 }
