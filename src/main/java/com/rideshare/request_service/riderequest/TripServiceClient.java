@@ -12,8 +12,8 @@ public class TripServiceClient {
         this.restTemplate = restTemplate;
     }
 
-    public String requestTrip() {
+    public String requestTrip(RideRequest rideRequest) {
         String tripServiceUrl = "http://localhost:8083/trip/request-trip"; // Replace with actual URL
-        return restTemplate.postForObject(tripServiceUrl, null, String.class);
+        return restTemplate.postForObject(tripServiceUrl, rideRequest, String.class); // Send RideRequest in the API call
     }
 }

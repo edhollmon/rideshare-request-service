@@ -33,11 +33,9 @@ public class RideRequestController {
         logger.info("Sending RideRequest: " + rideRequest);
 
         try {
-            // Call the Trip Service's request-trip route
-            String tripServiceResponse = tripServiceClient.requestTrip();
+            String tripServiceResponse = tripServiceClient.requestTrip(rideRequest);
             logger.info("Trip Service response: " + tripServiceResponse);
 
-            // Serialize the RideRequest object to JSON
             ObjectMapper objectMapper = new ObjectMapper();
             String messageBody = objectMapper.writeValueAsString(rideRequest);
 
